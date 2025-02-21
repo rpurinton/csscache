@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace RPurinton;
 
+use RPurinton\Exceptions\CssCacheException;
+
 class CssCache
 {
     protected string $cacheFile;
 
     public function __construct(protected string $dir)
     {
+        Log::install();
         if (!is_dir($dir)) {
-            throw new \Exception('Directory does not exist: ' . $dir);
+            throw new CssCacheException('Directory does not exist: ' . $dir);
         }
         $this->cacheFile = $this->dir . '/style.cache';
     }
@@ -25,7 +28,7 @@ class CssCache
     {
         $files = glob($this->dir . '/*.css');
         if ($files === false || empty($files)) {
-            throw new \Exception('No CSS files found in directory: ' . $this->dir);
+            throw new CssCacheException('No CSS files found in directory: ' . $this->dir);
         }
         return $files;
     }
@@ -35,12 +38,12 @@ class CssCache
         $lastModified = 0;
         foreach ($files as $file) {
             if (!is_file($file)) {
-                error_log("Not a file: $file");
+                Log::error("Not a file: $file");
                 continue;
             }
             $mtime = @filemtime($file);
             if ($mtime === false) {
-                error_log("Error retrieving mtime for file: $file");
+                Log::error("Error retrieving mtime for file: $file");
                 continue;
             }
             $lastModified = max($lastModified, $mtime);
@@ -54,13 +57,13 @@ class CssCache
         foreach ($files as $file) {
             $content = @file_get_contents($file);
             if ($content === false) {
-                error_log("Error reading CSS file: $file");
+                Log::error("Error reading CSS file: $file");
                 continue;
             }
             $css .= $content;
         }
         if (empty($css)) {
-            throw new \Exception('Generated CSS is empty.');
+            throw new CssCacheException('Generated CSS is empty.');
         }
         $css = preg_replace('!/\*.*?\*/!s', '', $css);
         $css = preg_replace('/\s+/', ' ', $css);
@@ -71,12 +74,12 @@ class CssCache
     protected function cacheCss(string $css): int
     {
         if (file_put_contents($this->cacheFile, $css, LOCK_EX) === false) {
-            throw new \Exception('Error writing to cache file.');
+            throw new CssCacheException('Error writing to cache file.');
         }
         clearstatcache(true, $this->cacheFile);
         $newTime = filemtime($this->cacheFile);
         if ($newTime === false) {
-            throw new \Exception('Error retrieving cache file modified time.');
+            throw new CssCacheException('Error retrieving cache file modified time.');
         }
         return $newTime;
     }
@@ -93,13 +96,13 @@ class CssCache
         if ($lastModified > $cacheFileTime) {
             $css = $this->generateCss($cssFiles);
             if (trim($css) === '') {
-                throw new \Exception('Generated CSS is empty after trimming.');
+                throw new CssCacheException('Generated CSS is empty after trimming.');
             }
             $lastModified = $this->cacheCss($css);
         } else {
             $css = @file_get_contents($this->cacheFile);
             if ($css === false) {
-                error_log('Error reading cache file. Regenerating CSS.');
+                Log::error('Error reading cache file. Regenerating CSS.');
                 $css = $this->generateCss($cssFiles);
                 $lastModified = $this->cacheCss($css);
             }
