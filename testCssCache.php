@@ -1,10 +1,11 @@
+#!/usr/bin/env php
 <?php
 
 use RPurinton\CssCache;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$dir = __DIR__ . '/testCssCache';
+$dir = __DIR__ . '/css';
 
 @unlink("$dir/style.cache");
 
