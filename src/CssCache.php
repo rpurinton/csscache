@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RPurinton\Tasklit;
+namespace RPurinton;
 
 class CssCache
 {
@@ -14,6 +14,11 @@ class CssCache
             throw new \Exception('Directory does not exist: ' . $dir);
         }
         $this->cacheFile = $this->dir . '/style.cache';
+    }
+
+    public static function compile(string $dir): void
+    {
+        (new self($dir))->process();
     }
 
     protected function getCssFiles(): array
