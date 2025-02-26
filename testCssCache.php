@@ -1,9 +1,13 @@
 #!/usr/bin/env php
 <?php
 
-use RPurinton\CssCache;
+use RPurinton\{Log, CssCache};
 
 require_once __DIR__ . '/vendor/autoload.php';
+
+putenv('LOG_LEVEL=error');
+putenv('LOG_FILE=php://stdout');
+Log::install();
 
 $dir = __DIR__ . '/css';
 
