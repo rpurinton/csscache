@@ -11,13 +11,13 @@
     ],
     "require": {
         "php": "^8.0",
-        "rpurinton/log": "^1.0.24"
+        "rpurinton/log": "^1.0.25"
     },
     "autoload": {
         "psr-4": {
             "RPurinton\\": "src/"
         }
     },
-    "version": "1.0.5",
+    "version": "1.0.6",
     "minimum-stability": "stable"
 }
